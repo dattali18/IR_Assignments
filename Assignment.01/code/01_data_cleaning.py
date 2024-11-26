@@ -1,177 +1,278 @@
-"""
-# Information Retrival Course
-
-## Assigment 1
-
-### Step 1: Data Cleaning
-"""
-
-# cleaning the data
-#!rm data.xlsx
-
-# downloading the data
-import requests
+# --------------------------------
+# MARK: IMPORTS
+# --------------------------------
+import pandas as pd
 import os
-import pandas as pd
-
-url = "https://github.com/dattali18/IR_Assignments/blob/main/Assignment.01/data/data.xlsx?raw=true"
-output_filename = "data.xlsx"
-
-response = requests.get(url)
-if response.status_code == 200:
-    with open(output_filename, "wb") as file:
-        file.write(response.content)
-
-print(f"The file was downloaded, and it is in {output_filename}.")
-
-data_aj = pd.read_excel(output_filename, sheet_name="A-J", engine="openpyxl")
-data_bbc = pd.read_excel(output_filename, sheet_name="BBC", engine="openpyxl")
-data_jp = pd.read_excel(output_filename, sheet_name="J-P", engine="openpyxl")
-data_nyt = pd.read_excel(output_filename, sheet_name="NY-T", engine="openpyxl")
-
-text_column_name = "Body Text"
-title_column_name = "title"
-
-# crate a df from each sourcre with only the "Body Text" and "title" and rename the colmun into "text" and "title"
-df_aj = data_aj[[text_column_name, title_column_name]].rename(columns={text_column_name: "text", title_column_name: "title"})
-
-# print the header of the df to see if sucessful
-
-df_aj.head()
-
-# do the same for all other
-
-df_bbc = data_bbc[[text_column_name, title_column_name]].rename(columns={text_column_name: "text", title_column_name: "title"})
-df_jp = data_jp[["Body", title_column_name]].rename(columns={"Body": "text", title_column_name: "title"})
-df_nyt = data_nyt[[text_column_name, title_column_name]].rename(columns={text_column_name: "text", title_column_name: "title"})
-
-"""Now we have 4 df with the column of text and title for each one of the 4 source and each data frame has about 600 articles."""
-
-print(f"Article from A_J: {len(df_aj)}")
-print(f"Article from BBC: {len(df_bbc)}")
-print(f"Article from J_P: {len(df_jp)}")
-print(f"Article from NYT: {len(df_nyt)}")
-
-"""Now we will perform the data cleaning in two steps:
-
-1. cleaning the word from all the punctuation marks.
-  - for example "How are you?" -> "How are you ?" because "you" != "you?"
-2. cleaning the documents with lemmatisation.
- - "cleaning" -> "clean"
-
- Outpute at the end:
-
- 1. 4 cleaned document sets from the ponctuation (not deleting them).
- 2. 4 cleaned document set by that include only the lemma (not word but their root).
-"""
-
-# performing the cleaning number 1
 import re
-import pandas as pd
 
-def clean_text(text):
+import spacy
+from spacy import Language
+
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
+from typing import Tuple
+
+# --------------------------------
+# MARK: CONSTANTS
+# --------------------------------
+
+# The data is one dir up and /data /data.xlsx
+DATA_FILE_PATH = os.path.join('..', 'data', 'data.xlsx')
+
+
+# --------------------------------
+# MARK: DATA PREPROCESSING
+# --------------------------------
+
+def process_aj(df_aj: pd.DataFrame) -> pd.DataFrame:
+    """
+    @param df_aj: the df of the A-J sheet
+    @rtype: pd.DataFrame
+    """
+    col_names_aj = ['title', 'sub_title', 'Body Text']
+    # we will add all the text from the 3 column above (is nan replace by "")
+    # we will add a column 'id' that will be aj_<i> where i is the index of the row
+
+    df_aj = df_aj[col_names_aj]
+    df_aj = df_aj.fillna("")
+
+    df_aj_cpy = pd.DataFrame()
+    df_aj_cpy["id"] = range(1, len(df_aj) + 1)
+    df_aj_cpy["id"] = "aj_" + df_aj["id"].astype(str)
+    df_aj_cpy["document"] = df_aj["title"] + " " + df_aj["sub_title"] + " " + df_aj["Body Text"]
+
+    return df_aj_cpy
+
+
+def process_bbc(df_bbc: pd.DataFrame) -> pd.DataFrame:
+    """
+    @param df_bbc: the df of the BBC sheet
+    @return: pd.DataFrame
+    """
+    col_names_bbc = ['title', "Body Text"]
+
+    df_bbc = df_bbc[col_names_bbc]
+    df_bbc = df_bbc.fillna("")
+
+    df_bbc_cpy = pd.DataFrame()
+    df_bbc_cpy["id"] = range(1, len(df_bbc) + 1)
+    df_bbc_cpy["id"] = "bbc_" + df_bbc['id'].astype(str)
+    df_bbc_cpy["document"] = df_bbc["title"] + " " + df_bbc["Body Text"]
+
+    return df_bbc_cpy
+
+
+def process_jp(df_jp: pd.DataFrame) -> pd.DataFrame:
+    """
+    @param df_jp: the df of the J-P sheet
+    @return: pd.DataFrame
+    """
+    col_names_jp = ['title', "Body"]
+
+    df_jp = df_jp[col_names_jp]
+    df_jp = df_jp.fillna("")
+
+    df_jp_cpy = pd.DataFrame()
+    df_jp_cpy["id"] = range(1, len(df_jp) + 1)
+    df_jp_cpy["id"] = "jp_" + df_jp['id'].astype(str)
+    df_jp_cpy["document"] = df_jp["title"] + " " + df_jp["Body"]
+
+    return df_jp_cpy
+
+
+def process_nyt(df_nyt: pd.DataFrame) -> pd.DataFrame:
+    """
+    @param df_nyt: the df of the NY-T sheet
+    @return: pd.DataFrame
+    """
+    col_names_nyt = ['title', 'Body Text']
+
+    df_nyt = df_nyt[col_names_nyt]
+    df_nyt = df_nyt.fillna("")
+
+    df_nyt_cpy = pd.DataFrame()
+    df_nyt_cpy["id"] = range(1, len(df_nyt) + 1)
+    df_nyt_cpy["id"] = "nyt_" + df_nyt['id'].astype(str)
+    df_nyt_cpy["document"] = df_nyt["title"] + " " + df_nyt["Body Text"]
+
+    return df_nyt_cpy
+
+
+def get_excel_data(path: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    df_aj = pd.read_excel(path, sheet_name="A-J", engine="openpyxl")
+    df_bbc = pd.read_excel(path, sheet_name="BBC", engine="openpyxl")
+    df_jp = pd.read_excel(path, sheet_name="J-P", engine="openpyxl")
+    df_nyt = pd.read_excel(path, sheet_name="NY-T", engine="openpyxl")
+
+    # processing the df 1 by 1 since each df is different
+    df_aj = process_aj(df_aj)
+    df_bbc = process_bbc(df_bbc)
+    df_jp = process_jp(df_jp)
+    df_nyt = process_nyt(df_nyt)
+
+    return df_aj, df_bbc, df_jp, df_nyt
+
+
+# --------------------------------
+# MARK: DATA CLEANING - PART 1 WORDS
+# --------------------------------
+
+def clean_text(text: str) -> str:
+    """
+    @summary Clean the text by normalizing all types of single and double quotation marks to standard forms
+    @param text: the text to clean
+    @rtype: str
+    """
     # Normalize all types of single and double quotation marks to standard forms
     text = re.sub(r"[‘’`]", "'", text)  # Convert all single quote variations to '
-    text = re.sub(r"[“”]", '"', text)   # Convert all double quote variations to "
+    text = re.sub(r"[“”]", '"', text)  # Convert all double quote variations to "
 
+    return text
+
+
+def clean_df(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    @summary Clean the text in the dataframe
+    @param df: the dataframe to clean
+    @rtype: pd.DataFrame
+    """
+    df["document"] = df["document"].apply(clean_text)
+
+    return df
+
+
+def clean_word(text: str) -> str:
     # Tokenize with regex to handle punctuation outside of words and contractions
     tokens = re.findall(r"\b\w+(?:'\w+)?\b|[^\w\s]", text, re.UNICODE)
 
     return ' '.join(tokens)
 
-# test the cleaning with a df
-# we can perform more tests as we find extreme cases.
 
-text = "How are you? I'm well thank you. doesn't."
-clean_text(text)
+def clean_word_df(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    @summary Clean the words in the dataframe
+    @param df: the dataframe to clean
+    @rtype: pd.DataFrame
+    """
+    df["document"] = df["document"].apply(clean_word)
 
-# let's write the data cleaning
+    return df
 
 
-def clean_df_ponctuation(df):
-  """
-  This function should return a new df and not change the old one.
-  """
-  df_copy = df.copy()
-  df_copy["text"] = df_copy["text"].astype(str).apply(clean_text)
-  return df_copy
+def save_documents_to_csv(df: pd.DataFrame, file_path: str) -> None:
+    df.to_csv(file_path, index=False)
 
-# test the function with a data frame and print the
-df_aj_ponctuation = clean_df_ponctuation(df_aj)
 
-# test the text that was produce
+# --------------------------------
+# MARK: DATA CLEANING - PART 2 LEMMATIZATION
+# --------------------------------
 
-for i in range(5):
-  print(f"{i + 1}: {data_aj_ponctuation['text'][i]}")
+def download_nltk_resources():
+    nltk.download("punkt")
+    nltk.download("stopwords")
+    nltk.download('punkt_tab')
 
-# clean all the other df
 
-df_bbc_ponctuation = clean_df_ponctuation(df_bbc)
-df_jp_ponctuation = clean_df_ponctuation(df_jp)
-df_nyt_ponctuation = clean_df_ponctuation(df_nyt)
+def get_stop_words() -> Tuple[set, Language]:
+    # before loading the stop words, we need to download the resources
+    # you need to run: `python -m spacy download en_core_web_sm` before running this function
+    nlp = spacy.load("en_core_web_sm")
+    stop_words = set(stopwords.words("english"))
 
-"""Now that we have clean the data in the first type we will do the lemmatisation."""
+    return stop_words, nlp
 
-# installing the needed packeges
-#!pip install spacy
-#!python -m spacy download en_core_web_sm
 
-import spacy
+def clean_lemma(text: str) -> str:
+    stop_words, nlp = get_stop_words()
 
-# Load spaCy's English model
-nlp = spacy.load("en_core_web_sm")
+    # replace all the `I'm` to I am etc
+    text = re.sub(r"I'm", "I am", text)
+    text = re.sub(r"you're", "you are", text)
+    text = re.sub(r"he's", "he is", text)
+    text = re.sub(r"she's", "she is", text)
+    text = re.sub(r"it's", "it is", text)
+    text = re.sub(r"we're", "we are", text)
+    text = re.sub(r"they're", "they are", text)
+    text = re.sub(r"that's", "that is", text)
+    text = re.sub(r"what's", "what is", text)
+    text = re.sub(r"where's", "where is", text)
+    text = re.sub(r"how's", "how is", text)
+    text = re.sub(r"i'll", "I will", text)
 
-def lemmatize_text(text):
-    # Normalize all types of single and double quotation marks to standard forms
-    text = re.sub(r"[‘’`]", "'", text)  # Convert all single quote variations to '
-    text = re.sub(r"[“”]", '"', text)   # Convert all double quote variations to "
+    # remove from the text all the punctuation
+    text = re.sub(r'[^\w\s]', '', text)
 
-    # Tokenize with regex to handle punctuation outside of words and contractions
-    tokens = re.findall(r"\b\w+(?:'\w+)?\b|[^\w\s]", text, re.UNICODE)
+    # tokenize the text
+    tokens = word_tokenize(text)
 
-    text = ' '.join(tokens)
-    # Process the text with spaCy's NLP pipeline
-    doc = nlp(text)
-    # Extract and join lemmas for each token
-    lemmatized_text = ' '.join(token.lemma_ for token in doc)
-    return lemmatized_text
+    # remove all the numbers and dates etc
+    tokens = [word for word in tokens if not any(char.isdigit() for char in word)]
 
-# test the lemmatisation on simple and extreme cases
+    # remove the stopwords
+    tokens = [word for word in tokens if not word.lower in stop_words]
 
-text = "How are you? I'm well thank you. doesn't. cleaning busiest"
-lemmatize_text(text)
+    doc = nlp(' '.join(tokens))
+    legitimatized_text = ' '.join(token.lemma_ for token in doc)
 
-"""Ok now that we have a lemmatization function that works even on the extrem cases lets clean the text"""
+    return legitimatized_text
 
-def clean_data_lemma(df):
-  df_copy = df.copy()
-  df_copy["text"] = df_copy["text"].astype(str).apply(lemmatize_text)
-  return df_copy
 
-# test with df_aj and print the frist 5 text to test
+def clean_lemma_df(df):
+    df_copy = df.copy()
+    df_copy["document"] = df_copy["document"].astype(str).apply(clean_lemma)
+    return df_copy
 
-data_aj_lemma = clean_data_lemma(df_aj)
 
-for i in range(5):
-  print(f"{i + 1}:\n{data_aj_lemma['text'][i]}")
-  print(f"{df_aj['text'][i]}\n\n")
+# --------------------------------
+# MARK: MAIN
+# --------------------------------
 
-# now clean the rest of the df
-df_bbc_lemma = clean_data_lemma(df_bbc)
-df_jp_lemma = clean_data_lemma(df_jp)
-df_nyt_lemma = clean_data_lemma(df_nyt)
+def main():
+    # PART 0: Preprocessing
+    # Get the data from the Excel file
+    df_aj, df_bbc, df_jp, df_nyt = get_excel_data(DATA_FILE_PATH)
 
-# store the all the cleaned data in files for further usage
-# the name of the file should be <source>_word.csv with headr
+    # Clean the text in the dataframes
+    df_aj = clean_df(df_aj)
+    df_bbc = clean_df(df_bbc)
+    df_jp = clean_df(df_jp)
+    df_nyt = clean_df(df_nyt)
 
-df_aj_ponctuation.to_csv("A_J_word.csv", index=False)
-df_bbc_ponctuation.to_csv("BBC_word.csv", index=False)
-df_jp_ponctuation.to_csv("J_P_word.csv", index=False)
-df_nyt_ponctuation.to_csv("NYT_word.csv", index=False)
+    # PART 1: WORDS
+    # Clean the words in the dataframes
+    df_aj = clean_word_df(df_aj)
+    df_bbc = clean_word_df(df_bbc)
+    df_jp = clean_word_df(df_jp)
+    df_nyt = clean_word_df(df_nyt)
 
-df_aj_lemma = data_aj_lemma
+    # Save the dataframes to csv files
+    data_word_folder = os.path.join('..', 'data', 'word')
 
-df_aj_lemma.to_csv("A_J_lemma.csv", index=False)
-df_bbc_lemma.to_csv("BBC_lemma.csv", index=False)
-df_jp_lemma.to_csv("J_P_lemma.csv", index=False)
-df_nyt_lemma.to_csv("NYT_lemma.csv", index=False)
+    save_documents_to_csv(df_aj, os.path.join(data_word_folder, 'aj.csv'))
+    save_documents_to_csv(df_bbc, os.path.join(data_word_folder, 'bbc.csv'))
+    save_documents_to_csv(df_jp, os.path.join(data_word_folder, 'jp.csv'))
+    save_documents_to_csv(df_nyt, os.path.join(data_word_folder, 'nyt.csv'))
+
+    # PART 2: LEMMATIZATION
+    # Download the necessary resources from NLTK
+    download_nltk_resources()
+
+    # Clean the lemmas in the dataframes
+    df_aj_lemma = clean_lemma_df(df_aj)
+    df_bbc_lemma = clean_lemma_df(df_bbc)
+    df_jp_lemma = clean_lemma_df(df_jp)
+    df_nyt_lemma = clean_lemma_df(df_nyt)
+
+    # Save the dataframes to csv files
+    data_lemma_folder = os.path.join('..', 'data', 'lemma')
+
+    save_documents_to_csv(df_aj_lemma, os.path.join(data_lemma_folder, 'aj.csv'))
+    save_documents_to_csv(df_bbc_lemma, os.path.join(data_lemma_folder, 'bbc.csv'))
+    save_documents_to_csv(df_jp_lemma, os.path.join(data_lemma_folder, 'jp.csv'))
+    save_documents_to_csv(df_nyt_lemma, os.path.join(data_lemma_folder, 'nyt.csv'))
+
+
+if __name__ == '__main__':
+    main()
