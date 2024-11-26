@@ -1,21 +1,19 @@
 # --------------------------------
-# MARK: IMPORTS
+# IMPORTS
 # --------------------------------
-import pandas as pd
 import os
 import re
-
-import spacy
-from spacy import Language
-
-import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-
 from typing import Tuple
 
+import nltk
+import pandas as pd
+import spacy
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from spacy import Language
+
 # --------------------------------
-# MARK: CONSTANTS
+# CONSTANTS
 # --------------------------------
 
 # The data is one dir up and /data /data.xlsx
@@ -23,7 +21,7 @@ DATA_FILE_PATH = os.path.join('..', 'data', 'data.xlsx')
 
 
 # --------------------------------
-# MARK: DATA PREPROCESSING
+# DATA PREPROCESSING
 # --------------------------------
 
 def process_aj(df_aj: pd.DataFrame) -> pd.DataFrame:
@@ -116,7 +114,7 @@ def get_excel_data(path: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame,
 
 
 # --------------------------------
-# MARK: DATA CLEANING - PART 1 WORDS
+# DATA CLEANING - PART 1 WORDS
 # --------------------------------
 
 def clean_text(text: str) -> str:
@@ -166,7 +164,7 @@ def save_documents_to_csv(df: pd.DataFrame, file_path: str) -> None:
 
 
 # --------------------------------
-# MARK: DATA CLEANING - PART 2 LEMMATIZATION
+# DATA CLEANING - PART 2 LEMMATIZATION
 # --------------------------------
 
 def download_nltk_resources():
@@ -211,7 +209,7 @@ def clean_lemma(text: str) -> str:
     tokens = [word for word in tokens if not any(char.isdigit() for char in word)]
 
     # remove the stopwords
-    tokens = [word for word in tokens if not word.lower in stop_words]
+    tokens = [word for word in tokens if word.lower not in stop_words]
 
     doc = nlp(' '.join(tokens))
     legitimatized_text = ' '.join(token.lemma_ for token in doc)
@@ -226,7 +224,7 @@ def clean_lemma_df(df):
 
 
 # --------------------------------
-# MARK: MAIN
+# MAIN
 # --------------------------------
 
 def main():
