@@ -165,6 +165,36 @@ def load_sparse_matrix(path):
     return df, matrix, vocab, doc_ids
 
 
+def information_gain(tfidf_matrix):
+    # calculate the entropy of the tfidf matrix
+    entropy = -tfidf_matrix * np.log2(tfidf_matrix)
+    entropy = np.sum(entropy, axis=1)
+    # calculate the entropy of the tfidf matrix
+    entropy = -tfidf_matrix * np.log2(tfidf_matrix)
+    entropy = np.sum(entropy, axis=1)
+    # calculate the information gain
+    ig = np.sum(entropy) - entropy
+    return ig
+
+
+def gain_ration(tfidf_matrix):
+    """
+    DESCRIPTION
+    -----------
+    Calculate the gain ratio of the tfidf matrix
+    gain ratio = information gain / entropy of the tfidf matrix
+    the gain ration is used to determine the importance of a term
+    """
+    # calculate the entropy of the tfidf matrix
+    entropy = -tfidf_matrix * np.log2(tfidf_matrix)
+    entropy = np.sum(entropy, axis=1)
+    # calculate the information gain
+    ig = np.sum(entropy) - entropy
+    # calculate the gain ratio
+    gr = ig / entropy
+    return gr
+
+
 # -----------------------------------------------
 # MAIN
 # -----------------------------------------------
@@ -186,182 +216,142 @@ def main():
     nyt_lemma_file = os.path.join(LEMMA_DIR, "NYT_lemma.csv")
 
     # loading the data
-    df_aj_word = load_data(aj_word_file)
-    df_bbc_word = load_data(bbc_word_file)
-    df_jp_word = load_data(jp_word_file)
-    df_nyt_word = load_data(nyt_word_file)
+    word_file = [aj_word_file, bbc_word_file, jp_word_file, nyt_word_file]
+    lemma_file = [aj_lemma_file, bbc_lemma_file, jp_lemma_file, nyt_lemma_file]
 
-    df_aj_lemma = load_data(aj_lemma_file)
-    df_bbc_lemma = load_data(bbc_lemma_file)
-    df_jp_lemma = load_data(jp_lemma_file)
-    df_nyt_lemma = load_data(nyt_lemma_file)
+    # transform the line by line into a dict comprehension
+    dfs_word = {file: load_data(file) for file in word_file}
+    dfs_lemma = {file: load_data(file) for file in lemma_file}
 
     # create a corpus from each data group
-    corpus_aj_word = create_corpus(df_aj_word["document"].tolist())
-    corpus_bbc_word = create_corpus(df_bbc_word["document"].tolist())
-    corpus_jp_word = create_corpus(df_jp_word["document"].tolist())
-    corpus_nyt_word = create_corpus(df_nyt_word["document"].tolist())
 
-    corpus_aj_lemma = create_corpus(df_aj_lemma["document"].tolist())
-    corpus_bbc_lemma = create_corpus(df_bbc_lemma["document"].tolist())
-    corpus_jp_lemma = create_corpus(df_jp_lemma["document"].tolist())
-    corpus_nyt_lemma = create_corpus(df_nyt_lemma["document"].tolist())
+    corpuses_word = {
+        file: create_corpus(df["document"].tolist()) for file, df in dfs_word.items()
+    }
+    corpuses_lemma = {
+        file: create_corpus(df["document"].tolist()) for file, df in dfs_lemma.items()
+    }
 
     # create a vocabulary from each data group
-    vocabulary_aj_word = create_vocabulary(corpus_aj_word)
-    vocabulary_bbc_word = create_vocabulary(corpus_bbc_word)
-    vocabulary_jp_word = create_vocabulary(corpus_jp_word)
-    vocabulary_nyt_word = create_vocabulary(corpus_nyt_word)
-
-    vocabulary_aj_lemma = create_vocabulary(corpus_aj_lemma)
-    vocabulary_bbc_lemma = create_vocabulary(corpus_bbc_lemma)
-    vocabulary_jp_lemma = create_vocabulary(corpus_jp_lemma)
-    vocabulary_nyt_lemma = create_vocabulary(corpus_nyt_lemma)
+    vocabularies_word = {
+        file: create_vocabulary(corpus) for file, corpus in corpuses_word.items()
+    }
+    vocabularies_lemma = {
+        file: create_vocabulary(corpus) for file, corpus in corpuses_lemma.items()
+    }
 
     # create the TF matrix for each data group
-    tf_matrix_aj_word = create_tf_matrix(corpus_aj_word, vocabulary_aj_word)
-    tf_matrix_bbc_word = create_tf_matrix(corpus_bbc_word, vocabulary_bbc_word)
-    tf_matrix_jp_word = create_tf_matrix(corpus_jp_word, vocabulary_jp_word)
-    tf_matrix_nyt_word = create_tf_matrix(corpus_nyt_word, vocabulary_nyt_word)
-
-    tf_matrix_aj_lemma = create_tf_matrix(corpus_aj_lemma, vocabulary_aj_lemma)
-    tf_matrix_bbc_lemma = create_tf_matrix(corpus_bbc_lemma, vocabulary_bbc_lemma)
-    tf_matrix_jp_lemma = create_tf_matrix(corpus_jp_lemma, vocabulary_jp_lemma)
-    tf_matrix_nyt_lemma = create_tf_matrix(corpus_nyt_lemma, vocabulary_nyt_lemma)
+    tf_matrices_word = {
+        file: create_tf_matrix(corpus, vocab)
+        for file, (corpus, vocab) in zip(
+            corpuses_word.items(), vocabularies_word.items()
+        )
+    }
+    tf_matrices_lemma = {
+        file: create_tf_matrix(corpus, vocab)
+        for file, (corpus, vocab) in zip(
+            corpuses_lemma.items(), vocabularies_lemma.items()
+        )
+    }
 
     # calculate the document frequency for each data group
     # dfc = document frequency count
-    dfc_aj_word = calculate_df(tf_matrix_aj_word, vocabulary_aj_word)
-    dfc_bbc_word = calculate_df(tf_matrix_bbc_word, vocabulary_bbc_word)
-    dfc_jp_word = calculate_df(tf_matrix_jp_word, vocabulary_jp_word)
-    dfc_nyt_word = calculate_df(tf_matrix_nyt_word, vocabulary_nyt_word)
-
-    dfc_aj_lemma = calculate_df(tf_matrix_aj_lemma, vocabulary_aj_lemma)
-    dfc_bbc_lemma = calculate_df(tf_matrix_bbc_lemma, vocabulary_bbc_lemma)
-    dfc_jp_lemma = calculate_df(tf_matrix_jp_lemma, vocabulary_jp_lemma)
-    dfc_nyt_lemma = calculate_df(tf_matrix_nyt_lemma, vocabulary_nyt_lemma)
+    dfcs_word = {
+        file: calculate_df(tf_matrix, vocab)
+        for file, (tf_matrix, vocab) in zip(
+            tf_matrices_word.items(), vocabularies_word.items()
+        )
+    }
+    dfcs_lemma = {
+        file: calculate_df(tf_matrix, vocab)
+        for file, (tf_matrix, vocab) in zip(
+            tf_matrices_lemma.items(), vocabularies_lemma.items()
+        )
+    }
 
     # calculate the average document length for each data group
-    L_avg_aj_word = calculate_avg_doc_len(corpus_aj_word)
-    L_avg_bbc_word = calculate_avg_doc_len(corpus_bbc_word)
-    L_avg_jp_word = calculate_avg_doc_len(corpus_jp_word)
-    L_avg_nyt_word = calculate_avg_doc_len(corpus_nyt_word)
-
-    L_avg_aj_lemma = calculate_avg_doc_len(corpus_aj_lemma)
-    L_avg_bbc_lemma = calculate_avg_doc_len(corpus_bbc_lemma)
-    L_avg_jp_lemma = calculate_avg_doc_len(corpus_jp_lemma)
-    L_avg_nyt_lemma = calculate_avg_doc_len(corpus_nyt_lemma)
+    L_avgs_word = {
+        file: calculate_avg_doc_len(corpus) for file, corpus in corpuses_word.items()
+    }
+    L_avgs_lemma = {
+        file: calculate_avg_doc_len(corpus) for file, corpus in corpuses_lemma.items()
+    }
 
     # calculate the tf-idf matrix for each data group
-    tfidf_aj_word = tfidf_bm25_okapi(
-        tf_matrix_aj_word,
-        dfc_aj_word,
-        corpus_aj_word,
-        vocabulary_aj_word,
-        L_avg_aj_word,
-    )
-    tfidf_bbc_word = tfidf_bm25_okapi(
-        tf_matrix_bbc_word,
-        dfc_bbc_word,
-        corpus_bbc_word,
-        vocabulary_bbc_word,
-        L_avg_bbc_word,
-    )
-    tfidf_jp_word = tfidf_bm25_okapi(
-        tf_matrix_jp_word,
-        dfc_jp_word,
-        corpus_jp_word,
-        vocabulary_jp_word,
-        L_avg_jp_word,
-    )
-    tfidf_nyt_word = tfidf_bm25_okapi(
-        tf_matrix_nyt_word,
-        dfc_nyt_word,
-        corpus_nyt_word,
-        vocabulary_nyt_word,
-        L_avg_nyt_word,
-    )
+    tfidf_matrices_word = {
+        file: tfidf_bm25_okapi(tf_matrix, dfc, corpus, vocab, L_avg)
+        for file, (tf_matrix, dfc, corpus, vocab, L_avg) in zip(
+            tf_matrices_word.items(),
+            dfcs_word.items(),
+            corpuses_word.items(),
+            vocabularies_word.items(),
+            L_avgs_word.items(),
+        )
+    }
 
-    tfidf_aj_lemma = tfidf_bm25_okapi(
-        tf_matrix_aj_lemma,
-        dfc_aj_lemma,
-        corpus_aj_lemma,
-        vocabulary_aj_lemma,
-        L_avg_aj_lemma,
-    )
-    tfidf_bbc_lemma = tfidf_bm25_okapi(
-        tf_matrix_bbc_lemma,
-        dfc_bbc_lemma,
-        corpus_bbc_lemma,
-        vocabulary_bbc_lemma,
-        L_avg_bbc_lemma,
-    )
-    tfidf_jp_lemma = tfidf_bm25_okapi(
-        tf_matrix_jp_lemma,
-        dfc_jp_lemma,
-        corpus_jp_lemma,
-        vocabulary_jp_lemma,
-        L_avg_jp_lemma,
-    )
-    tfidf_nyt_lemma = tfidf_bm25_okapi(
-        tf_matrix_nyt_lemma,
-        dfc_nyt_lemma,
-        corpus_nyt_lemma,
-        vocabulary_nyt_lemma,
-        L_avg_nyt_lemma,
-    )
+    tfidf_matrices_lemma = {
+        file: tfidf_bm25_okapi(tf_matrix, dfc, corpus, vocab, L_avg)
+        for file, (tf_matrix, dfc, corpus, vocab, L_avg) in zip(
+            tf_matrices_lemma.items(),
+            dfcs_lemma.items(),
+            corpuses_lemma.items(),
+            vocabularies_lemma.items(),
+            L_avgs_lemma.items(),
+        )
+    }
 
-    # save the data
-    save_sparse_matrix(
-        tfidf_aj_word,
-        vocabulary_aj_word,
-        df_aj_word["doc_id"].tolist(),
-        os.join(OUTPUT_DIR, "aj_word"),
-    )
-    save_sparse_matrix(
-        tfidf_bbc_word,
-        vocabulary_bbc_word,
-        df_bbc_word["doc_id"].tolist(),
-        os.join(OUTPUT_DIR, "bbc_word"),
-    )
-    save_sparse_matrix(
-        tfidf_jp_word,
-        vocabulary_jp_word,
-        df_jp_word["doc_id"].tolist(),
-        os.join(OUTPUT_DIR, "jp_word"),
-    )
-    save_sparse_matrix(
-        tfidf_nyt_word,
-        vocabulary_nyt_word,
-        df_nyt_word["doc_id"].tolist(),
-        os.join(OUTPUT_DIR, "nyt_word"),
-    )
+    # save all the data
+    for file, tfidf_matrix in tfidf_matrices_word.items():
+        vocabulary = vocabularies_word[file]
+        doc_ids = dfs_word[file]["doc_id"].tolist()
+        save_sparse_matrix(tfidf_matrix, vocabulary, doc_ids, file + "_word")
 
-    save_sparse_matrix(
-        tfidf_aj_lemma,
-        vocabulary_aj_lemma,
-        df_aj_lemma["doc_id"].tolist(),
-        os.join(OUTPUT_DIR, "aj_lemma"),
-    )
-    save_sparse_matrix(
-        tfidf_bbc_lemma,
-        vocabulary_bbc_lemma,
-        df_bbc_lemma["doc_id"].tolist(),
-        os.join(OUTPUT_DIR, "bbc_lemma"),
-    )
+    # Perform the data analysis on the tf-idf matrix
+    # 1. Information Gain
 
-    save_sparse_matrix(
-        tfidf_jp_lemma,
-        vocabulary_jp_lemma,
-        df_jp_lemma["doc_id"].tolist(),
-        os.join(OUTPUT_DIR, "jp_lemma"),
-    )
-    save_sparse_matrix(
-        tfidf_nyt_lemma,
-        vocabulary_nyt_lemma,
-        df_nyt_lemma["doc_id"].tolist(),
-        os.join(OUTPUT_DIR, "nyt_lemma"),
-    )
+    ig_word = {  # information gain for the word data
+        file: information_gain(tfidf_matrix)
+        for file, tfidf_matrix in tfidf_matrices_word.items()
+    }
+
+    ig_lemma = {  # information gain for the lemma data
+        file: information_gain(tfidf_matrix)
+        for file, tfidf_matrix in tfidf_matrices_lemma.items()
+    }
+    # 2. Gain Ratio
+
+    gr_word = {  # gain ratio for the word data
+        file: gain_ration(tfidf_matrix)
+        for file, tfidf_matrix in tfidf_matrices_word.items()
+    }
+
+    gr_lemma = {  # gain ratio for the lemma data
+        file: gain_ration(tfidf_matrix)
+        for file, tfidf_matrix in tfidf_matrices_lemma.items()
+    }
+
+    # print the most important terms for each technique
+    # for each group find the term with the highest information gain
+    for file, ig in ig_word.items():
+        print(
+            f"Most important term for {file} using information gain: {vocabularies_word[file][np.argmax(ig)]}"
+        )
+
+    for file, ig in ig_lemma.items():
+        print(
+            f"Most important term for {file} using information gain: {vocabularies_lemma[file][np.argmax(ig)]}"
+        )
+
+    # for each group find the term with the highest gain ratio
+    for file, gr in gr_word.items():
+        print(
+            f"Most important term for {file} using gain ratio: {vocabularies_word[file][np.argmax(gr)]}"
+        )
+
+    for file, gr in gr_lemma.items():
+        print(
+            f"Most important term for {file} using gain ratio: {vocabularies_lemma[file][np.argmax(gr)]}"
+        )
 
 
 if __name__ == "__main__":

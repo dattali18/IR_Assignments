@@ -17,19 +17,20 @@ from spacy import Language
 # --------------------------------
 
 # The data is one dir up and /data /data.xlsx
-DATA_FILE_PATH = os.path.join('..', 'data', 'data.xlsx')
+DATA_FILE_PATH = os.path.join("..", "data", "data.xlsx")
 
 
 # --------------------------------
 # DATA PREPROCESSING
 # --------------------------------
 
+
 def process_aj(df_aj: pd.DataFrame) -> pd.DataFrame:
     """
     @param df_aj: the df of the A-J sheet
     @rtype: pd.DataFrame
     """
-    col_names_aj = ['title', 'sub_title', 'Body Text']
+    col_names_aj = ["title", "sub_title", "Body Text"]
     # we will add all the text from the 3 column above (is nan replace by "")
     # we will add a column 'id' that will be aj_<i> where i is the index of the row
 
@@ -38,8 +39,10 @@ def process_aj(df_aj: pd.DataFrame) -> pd.DataFrame:
 
     df_aj_cpy = pd.DataFrame()
     df_aj_cpy["id"] = range(1, len(df_aj) + 1)
-    df_aj_cpy["id"] = "aj_" + df_aj["id"].astype(str)
-    df_aj_cpy["document"] = df_aj["title"] + " " + df_aj["sub_title"] + " " + df_aj["Body Text"]
+    df_aj_cpy["id"] = "aj_" + df_aj_cpy["id"].astype(str)
+    df_aj_cpy["document"] = (
+        df_aj["title"] + " " + df_aj["sub_title"] + " " + df_aj["Body Text"]
+    )
 
     return df_aj_cpy
 
@@ -49,14 +52,14 @@ def process_bbc(df_bbc: pd.DataFrame) -> pd.DataFrame:
     @param df_bbc: the df of the BBC sheet
     @return: pd.DataFrame
     """
-    col_names_bbc = ['title', "Body Text"]
+    col_names_bbc = ["title", "Body Text"]
 
     df_bbc = df_bbc[col_names_bbc]
     df_bbc = df_bbc.fillna("")
 
     df_bbc_cpy = pd.DataFrame()
     df_bbc_cpy["id"] = range(1, len(df_bbc) + 1)
-    df_bbc_cpy["id"] = "bbc_" + df_bbc['id'].astype(str)
+    df_bbc_cpy["id"] = "bbc_" + df_bbc_cpy["id"].astype(str)
     df_bbc_cpy["document"] = df_bbc["title"] + " " + df_bbc["Body Text"]
 
     return df_bbc_cpy
@@ -67,14 +70,14 @@ def process_jp(df_jp: pd.DataFrame) -> pd.DataFrame:
     @param df_jp: the df of the J-P sheet
     @return: pd.DataFrame
     """
-    col_names_jp = ['title', "Body"]
+    col_names_jp = ["title", "Body"]
 
     df_jp = df_jp[col_names_jp]
     df_jp = df_jp.fillna("")
 
     df_jp_cpy = pd.DataFrame()
     df_jp_cpy["id"] = range(1, len(df_jp) + 1)
-    df_jp_cpy["id"] = "jp_" + df_jp['id'].astype(str)
+    df_jp_cpy["id"] = "jp_" + df_jp_cpy["id"].astype(str)
     df_jp_cpy["document"] = df_jp["title"] + " " + df_jp["Body"]
 
     return df_jp_cpy
@@ -85,20 +88,22 @@ def process_nyt(df_nyt: pd.DataFrame) -> pd.DataFrame:
     @param df_nyt: the df of the NY-T sheet
     @return: pd.DataFrame
     """
-    col_names_nyt = ['title', 'Body Text']
+    col_names_nyt = ["title", "Body Text"]
 
     df_nyt = df_nyt[col_names_nyt]
     df_nyt = df_nyt.fillna("")
 
     df_nyt_cpy = pd.DataFrame()
     df_nyt_cpy["id"] = range(1, len(df_nyt) + 1)
-    df_nyt_cpy["id"] = "nyt_" + df_nyt['id'].astype(str)
+    df_nyt_cpy["id"] = "nyt_" + df_nyt_cpy["id"].astype(str)
     df_nyt_cpy["document"] = df_nyt["title"] + " " + df_nyt["Body Text"]
 
     return df_nyt_cpy
 
 
-def get_excel_data(path: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def get_excel_data(
+    path: str,
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     df_aj = pd.read_excel(path, sheet_name="A-J", engine="openpyxl")
     df_bbc = pd.read_excel(path, sheet_name="BBC", engine="openpyxl")
     df_jp = pd.read_excel(path, sheet_name="J-P", engine="openpyxl")
@@ -116,6 +121,7 @@ def get_excel_data(path: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame,
 # --------------------------------
 # DATA CLEANING - PART 1 WORDS
 # --------------------------------
+
 
 def clean_text(text: str) -> str:
     """
@@ -145,7 +151,7 @@ def clean_word(text: str) -> str:
     # Tokenize with regex to handle punctuation outside of words and contractions
     tokens = re.findall(r"\b\w+(?:'\w+)?\b|[^\w\s]", text, re.UNICODE)
 
-    return ' '.join(tokens)
+    return " ".join(tokens)
 
 
 def clean_word_df(df: pd.DataFrame) -> pd.DataFrame:
@@ -167,10 +173,11 @@ def save_documents_to_csv(df: pd.DataFrame, file_path: str) -> None:
 # DATA CLEANING - PART 2 LEMMATIZATION
 # --------------------------------
 
+
 def download_nltk_resources():
     nltk.download("punkt")
     nltk.download("stopwords")
-    nltk.download('punkt_tab')
+    nltk.download("punkt_tab")
 
 
 def get_stop_words() -> Tuple[set, Language]:
@@ -200,7 +207,7 @@ def clean_lemma(text: str) -> str:
     text = re.sub(r"i'll", "I will", text)
 
     # remove from the text all the punctuation
-    text = re.sub(r'[^\w\s]', '', text)
+    text = re.sub(r"[^\w\s]", "", text)
 
     # tokenize the text
     tokens = word_tokenize(text)
@@ -211,8 +218,8 @@ def clean_lemma(text: str) -> str:
     # remove the stopwords
     tokens = [word for word in tokens if word.lower not in stop_words]
 
-    doc = nlp(' '.join(tokens))
-    legitimatized_text = ' '.join(token.lemma_ for token in doc)
+    doc = nlp(" ".join(tokens))
+    legitimatized_text = " ".join(token.lemma_ for token in doc)
 
     return legitimatized_text
 
@@ -227,50 +234,42 @@ def clean_lemma_df(df):
 # MAIN
 # --------------------------------
 
+
 def main():
     # PART 0: Preprocessing
     # Get the data from the Excel file
     df_aj, df_bbc, df_jp, df_nyt = get_excel_data(DATA_FILE_PATH)
 
     # Clean the text in the dataframes
-    df_aj = clean_df(df_aj)
-    df_bbc = clean_df(df_bbc)
-    df_jp = clean_df(df_jp)
-    df_nyt = clean_df(df_nyt)
+    names = ["aj", "bbc", "jp", "nyt"]
+    # transform the line by line call to a dict comprehension
+    dfs = {
+        name: clean_df(df) for name, df in zip(names, [df_aj, df_bbc, df_jp, df_nyt])
+    }
 
     # PART 1: WORDS
     # Clean the words in the dataframes
-    df_aj = clean_word_df(df_aj)
-    df_bbc = clean_word_df(df_bbc)
-    df_jp = clean_word_df(df_jp)
-    df_nyt = clean_word_df(df_nyt)
+    dfs = {name: clean_word_df(df) for name, df in dfs.items()}
 
     # Save the dataframes to csv files
-    data_word_folder = os.path.join('..', 'data', 'word')
+    data_word_folder = os.path.join("..", "data", "word")
 
-    save_documents_to_csv(df_aj, os.path.join(data_word_folder, 'aj.csv'))
-    save_documents_to_csv(df_bbc, os.path.join(data_word_folder, 'bbc.csv'))
-    save_documents_to_csv(df_jp, os.path.join(data_word_folder, 'jp.csv'))
-    save_documents_to_csv(df_nyt, os.path.join(data_word_folder, 'nyt.csv'))
+    for name, df in dfs.items():
+        save_documents_to_csv(df, os.path.join(data_word_folder, f"{name}.csv"))
 
     # PART 2: LEMMATIZATION
     # Download the necessary resources from NLTK
     download_nltk_resources()
 
     # Clean the lemmas in the dataframes
-    df_aj_lemma = clean_lemma_df(df_aj)
-    df_bbc_lemma = clean_lemma_df(df_bbc)
-    df_jp_lemma = clean_lemma_df(df_jp)
-    df_nyt_lemma = clean_lemma_df(df_nyt)
+    df_lemma = {name: clean_lemma_df(df) for name, df in dfs.items()}
 
     # Save the dataframes to csv files
-    data_lemma_folder = os.path.join('..', 'data', 'lemma')
+    data_lemma_folder = os.path.join("..", "data", "lemma")
 
-    save_documents_to_csv(df_aj_lemma, os.path.join(data_lemma_folder, 'aj.csv'))
-    save_documents_to_csv(df_bbc_lemma, os.path.join(data_lemma_folder, 'bbc.csv'))
-    save_documents_to_csv(df_jp_lemma, os.path.join(data_lemma_folder, 'jp.csv'))
-    save_documents_to_csv(df_nyt_lemma, os.path.join(data_lemma_folder, 'nyt.csv'))
+    for name, df in df_lemma.items():
+        save_documents_to_csv(df, os.path.join(data_lemma_folder, f"{name}.csv"))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

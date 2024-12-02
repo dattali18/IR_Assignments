@@ -88,6 +88,7 @@ def get_bert_embedding(text, tokenizer, model):
 # Main
 # -----------------------------------------------
 
+
 def main():
     # Load the data
     # setting the path to the data
@@ -104,53 +105,58 @@ def main():
     nyt_lemma_file = os.path.join(LEMMA_DIR, "NYT_lemma.csv")
 
     # loading the data
-    df_aj_word = load_data(aj_word_file)
-    df_bbc_word = load_data(bbc_word_file)
-    df_jp_word = load_data(jp_word_file)
-    df_nyt_word = load_data(nyt_word_file)
+    word_file = [aj_word_file, bbc_word_file, jp_word_file, nyt_word_file]
+    lemma_file = [aj_lemma_file, bbc_lemma_file, jp_lemma_file, nyt_lemma_file]
 
-    df_aj_lemma = load_data(aj_lemma_file)
-    df_bbc_lemma = load_data(bbc_lemma_file)
-    df_jp_lemma = load_data(jp_lemma_file)
-    df_nyt_lemma = load_data(nyt_lemma_file)
+    # transform the line by line into a dict comprehension
+    dfs_word = {file: load_data(file) for file in word_file}
+    dfs_lemma = {file: load_data(file) for file in lemma_file}
 
     #  we will do it for one example and then for all 2 * 4 documents corpus
-    df = df_aj_word
+    dfs = [*dfs_word.values(), *dfs_lemma.values()]
+    
+    for df in dfs:
 
-    df['tokens'] = df['text'].apply(clean_text)
-    # get the length of the tokens
-    df['len_tokens'] = df['tokens'].apply(len)
+        df["tokens"] = df["text"].apply(clean_text)
+        # get the length of the tokens
+        df["len_tokens"] = df["tokens"].apply(len)
 
-    # getting the vectors
-    model = Word2Vec(df["tokens"], min_count=5)
+        # getting the vectors
+        model = Word2Vec(df["tokens"], min_count=5)
 
-    df["vectors"] = df["tokens"].apply(vectorize_words, model=model)
+        df["vectors"] = df["tokens"].apply(vectorize_words, model=model)
 
-    # create the matrix
-    df["matrix"] = df["vectors"].apply(create_matrix).tolist()
+        # create the matrix
+        df["matrix"] = df["vectors"].apply(create_matrix).tolist()
 
-    # save the matrix
-    # todo: later
+        # save the matrix
+        # todo: later
 
-    # document matrix
-    df["document_vector"] = df["matrix"].apply(create_document_vector)
+        # document matrix
+        df["document_vector"] = df["matrix"].apply(create_document_vector)
 
-    model_name = "bert-base-uncased"
-    tokenizer = BertTokenizer.from_pretrained(model_name)
-    model = BertModel.from_pretrained(model_name)
+        model_name = "bert-base-uncased"
+        tokenizer = BertTokenizer.from_pretrained(model_name)
+        model = BertModel.from_pretrained(model_name)
 
-    # BERT Embedding for each word in each document
-    # The words are already tokenized in 'tokens' column
-    df["bert_word_embedding"] = df["tokens"].apply(
-        lambda x: [get_bert_embedding(word, tokenizer=tokenizer, model=model) for word in x]
-    )
+        # BERT Embedding for each word in each document
+        # The words are already tokenized in 'tokens' column
+        df["bert_word_embedding"] = df["tokens"].apply(
+            lambda x: [
+                get_bert_embedding(word, tokenizer=tokenizer, model=model) for word in x
+            ]
+        )
 
-    # BERT Embedding for the all document
-    df["bert_embedding"] = df["document"].apply(get_bert_embedding, tokenizer=tokenizer, model=model)
+        # BERT Embedding for the all document
+        df["bert_embedding"] = df["document"].apply(
+            get_bert_embedding, tokenizer=tokenizer, model=model
+        )
 
-    # Save the data
+        # Save the data
+        output_file = os.path.join(OUTPUT_DIR, f"{df['document'][0]}_vectors.csv")
 
-    # to complete the assignment do all that for each of the remaining 7 document groups
+        df.to_csv(output_file, index=False)
+
 
 if __name__ == "__main__":
     main()
