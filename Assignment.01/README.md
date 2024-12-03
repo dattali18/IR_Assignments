@@ -203,6 +203,8 @@ def create_vocabulary(corpus):
     return vocabulary
 ```
 
+The vocabulary size for the word docs are in the $4000$ range and for the lemma docs are in the $3000$ range.
+
 **Step 3: TF Matrix**
 
 ```python
@@ -270,6 +272,8 @@ def tfidf_bm25_okapi(tf_matrix, df, processed_corpus, vocab, L_avg, k=1.2, b=0.7
 
     return tfidf_matrix
 ```
+
+The default value for $K$ and $b$ are $1.2$ and $0.75$ respectively. Based on the literature these are the most common values. [here](https://en.wikipedia.org/wiki/Okapi_BM25) in the wiki article we can see the the most common values for $k$ are $k \in [1.2, 2.0]$ and for $b$ are $b \in [0.75, 1.0]$.
 
 ---
 
@@ -339,6 +343,53 @@ Where:
 - $GR$ is the gain ratio
 - $IG$ is the information gain
 
+**Output of 20 terms**
+
+```
+Building IG and GR for file:A_J_word.csv
+Top 20 terms by Information Gain:
+ ['barricade', 'algerias', 'alfitr', 'alexius', 'alexandria', 'alert', 'aleaziz', 'ale', 'aldaqran', 'albaressaid', 'albany', 'albalah', 'albag', 'alawda', 'alassad', 'alarmed', 'alarm', 'algeria', 'ali', 'allow']
+Top 20 terms by Gain Ratio:
+ ['barricade', 'algerias', 'alfitr', 'alexius', 'alexandria', 'alert', 'aleaziz', 'ale', 'aldaqran', 'albaressaid', 'albany', 'albalah', 'albag', 'alawda', 'alassad', 'alarmed', 'alarm', 'algeria', 'ali', 'allow']
+Building IG and GR for file:BBC_word.csv
+Top 20 terms by Information Gain:
+ ['badfaith', 'ajoint', 'alan', 'alam', 'alaliin', 'alali', 'ala', 'al', 'airstrikein', 'algerias', 'airstrike', 'airportstyle', 'airlift', 'airdrop', 'aircraft', 'airborne', 'alaqsa', 'alarge', 'alarm', 'alarmed']
+Top 20 terms by Gain Ratio:
+ ['badfaith', 'ajoint', 'alan', 'alam', 'alaliin', 'alali', 'ala', 'al', 'airstrikein', 'algerias', 'airstrike', 'airportstyle', 'airlift', 'airdrop', 'aircraft', 'airborne', 'alaqsa', 'alarge', 'alarm', 'alarmed']
+Building IG and GR for file:J_P_word.csv
+Top 20 terms by Information Gain:
+ ['barricade', 'algerias', 'alfitr', 'alexius', 'alexandria', 'alert', 'aleaziz', 'ale', 'aldaqran', 'albaressaid', 'albany', 'albalah', 'albag', 'alawda', 'alassad', 'alarmed', 'alarm', 'algeria', 'ali', 'allow']
+Top 20 terms by Gain Ratio:
+ ['barricade', 'algerias', 'alfitr', 'alexius', 'alexandria', 'alert', 'aleaziz', 'ale', 'aldaqran', 'albaressaid', 'albany', 'albalah', 'albag', 'alawda', 'alassad', 'alarmed', 'alarm', 'algeria', 'ali', 'allow']
+Building IG and GR for file:NYT_word.csv
+Top 20 terms by Information Gain:
+ ['barricade', 'algerias', 'alfitr', 'alexius', 'alexandria', 'alert', 'aleaziz', 'ale', 'aldaqran', 'albaressaid', 'albany', 'albalah', 'albag', 'alawda', 'alassad', 'alarmed', 'alarm', 'algeria', 'ali', 'allow']
+Top 20 terms by Gain Ratio:
+ ['barricade', 'algerias', 'alfitr', 'alexius', 'alexandria', 'alert', 'aleaziz', 'ale', 'aldaqran', 'albaressaid', 'albany', 'albalah', 'albag', 'alawda', 'alassad', 'alarmed', 'alarm', 'algeria', 'ali', 'allow']
+Building IG and GR for file:A_J_lemma.csv
+Top 20 terms by Information Gain:
+ ['barricade', 'algerias', 'alfitr', 'alexius', 'alexandria', 'alert', 'aleaziz', 'ale', 'aldaqran', 'albaressaid', 'albany', 'albalah', 'albag', 'alawda', 'alassad', 'alarmed', 'alarm', 'algeria', 'ali', 'allow']
+Top 20 terms by Gain Ratio:
+ ['barricade', 'algerias', 'alfitr', 'alexius', 'alexandria', 'alert', 'aleaziz', 'ale', 'aldaqran', 'albaressaid', 'albany', 'albalah', 'albag', 'alawda', 'alassad', 'alarmed', 'alarm', 'algeria', 'ali', 'allow']
+Building IG and GR for file:BBC_lemma.csv
+Top 20 terms by Information Gain:
+ ['badfaith', 'ajoint', 'alan', 'alam', 'alaliin', 'alali', 'ala', 'al', 'airstrikein', 'algerias', 'airstrike', 'airportstyle', 'airlift', 'airdrop', 'aircraft', 'airborne', 'alaqsa', 'alarge', 'alarm', 'alarmed']
+Top 20 terms by Gain Ratio:
+ ['badfaith', 'ajoint', 'alan', 'alam', 'alaliin', 'alali', 'ala', 'al', 'airstrikein', 'algerias', 'airstrike', 'airportstyle', 'airlift', 'airdrop', 'aircraft', 'airborne', 'alaqsa', 'alarge', 'alarm', 'alarmed']
+Building IG and GR for file:J_P_lemma.csv
+Top 20 terms by Information Gain:
+ ['barricade', 'algerias', 'alfitr', 'alexius', 'alexandria', 'alert', 'aleaziz', 'ale', 'aldaqran', 'albaressaid', 'albany', 'albalah', 'albag', 'alawda', 'alassad', 'alarmed', 'alarm', 'algeria', 'ali', 'allow']
+Top 20 terms by Gain Ratio:
+ ['barricade', 'algerias', 'alfitr', 'alexius', 'alexandria', 'alert', 'aleaziz', 'ale', 'aldaqran', 'albaressaid', 'albany', 'albalah', 'albag', 'alawda', 'alassad', 'alarmed', 'alarm', 'algeria', 'ali', 'allow']
+Building IG and GR for file:NYT_lemma.csv
+Top 20 terms by Information Gain:
+ ['barricade', 'algerias', 'alfitr', 'alexius', 'alexandria', 'alert', 'aleaziz', 'ale', 'aldaqran', 'albaressaid', 'albany', 'albalah', 'albag', 'alawda', 'alassad', 'alarmed', 'alarm', 'algeria', 'ali', 'allow']
+Top 20 terms by Gain Ratio:
+ ['barricade', 'algerias', 'alfitr', 'alexius', 'alexandria', 'alert', 'aleaziz', 'ale', 'aldaqran', 'albaressaid', 'albany', 'albalah', 'albag', 'alawda', 'alassad', 'alarmed', 'alarm', 'algeria', 'ali', 'allow']
+```
+
+So we can learn from the top 20 terms in each TF-IDF Matrix that terms are similar across all the documents which means that the documents are similar (we now that becasuse we took the articles about the same topic).
+
 ---
 
 ### TF-IDF - Part 4
@@ -404,6 +455,8 @@ def word2vec(corpus, size=100, window=5, min_count=1, workers=4):
     return model
 ```
 
+The vector size  for the word2vec is $100$ and the window size is $5$.
+
 ---
 
 ### Vectorization - Part 2
@@ -420,6 +473,8 @@ def doc2vec(corpus, size=100, window=5, min_count=1, workers=4):
     model = Doc2Vec(tagged_corpus, vector_size=size, window=window, min_count=min_count, workers=workers)
     return model
 ```
+
+The vector size for the doc2vec is $100$ and the window size is $5$.
 
 ---
 
@@ -443,6 +498,8 @@ def bert(corpus, model_name="bert-base-uncased"):
     return np.array(vectors)
 ```
 
+The default model name is `bert-base-uncased`. The dimension of the vector is $768$.
+
 ---
 
 ### Vectorization - Part 4
@@ -458,6 +515,8 @@ def sentence_bert(corpus, model_name="stsb-roberta-base"):
     vectors = model.encode(corpus)
     return vectors
 ```
+
+The default model name is `stsb-roberta-base`. The dimension of the vector is $768$.
 
 ---
 
