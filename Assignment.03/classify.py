@@ -44,10 +44,10 @@ def download_data(output_filename):
 
 
 def load_data(output_filename):
-    data_aj = pd.read_excel(output_filename, sheet_name="A-J", engine="openpyxl")
-    data_bbc = pd.read_excel(output_filename, sheet_name="BBC", engine="openpyxl")
-    data_jp = pd.read_excel(output_filename, sheet_name="J-P", engine="openpyxl")
-    data_nyt = pd.read_excel(output_filename, sheet_name="NY-T", engine="openpyxl")
+    data_aj = pd.read_excel(output_filename, sheet_name="A-J")
+    data_bbc = pd.read_excel(output_filename, sheet_name="BBC")
+    data_jp = pd.read_excel(output_filename, sheet_name="J-P")
+    data_nyt = pd.read_excel(output_filename, sheet_name="NY-T")
 
     col_names_aj = ["title", "sub_title", "Body Text"]
     # we will add all the text from the 3 column above (is nan replace by "")
@@ -85,9 +85,41 @@ def load_data(output_filename):
     df_nyt["id"] = "nyt_" + df_nyt["id"].astype(str)
     df_nyt["document"] = data_nyt["title"] + " " + data_nyt["Body Text"]
 
+    col_names_jp = ["title", "Body"]
+
+    data_jp = data_jp[col_names_jp]
+    data_jp = data_jp.fillna("")
+
+    df_jp = pd.DataFrame()
+    df_jp["id"] = range(1, len(data_jp) + 1)
+    df_jp["id"] = "jp_" + df_jp["id"].astype(str)
+    df_jp["document"] = data_jp["Body"]
+
+    return df_aj, df_bbc, df_nyt, df_jp
+
 
 def main():
     output_filename = "data/data.xlsx"
+
+    # download_data(output_filename)
+    df_aj, df_bbc, df_nyt, df_jp = load_data(output_filename)
+
+    # Apply to all DataFrames
+    df_results = []
+    for df in [df_aj, df_bbc, df_nyt, df_jp]:
+        df_results.append(
+            extract_relevant_sentences(df, pro_israeli_words, pro_palestinian_words)
+        )
+
+    # Combine results
+    print("Combining results")
+    df_extracted = pd.concat(df_results)
+    df_extracted.to_csv("extracted_sentences.csv", index=False)
+    
+    print("Done")
+
+if __name__ == "__main__":
+    main()
 
 # # Apply to all DataFrames
 # df_results = []
