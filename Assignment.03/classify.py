@@ -98,6 +98,20 @@ def load_data(output_filename):
     return df_aj, df_bbc, df_nyt, df_jp
 
 
+import re
+
+
+def clean_text(text):
+    # Normalize all types of single and double quotation marks to standard forms
+    text = re.sub(r"[‘’`]", "'", text)  # Convert all single quote variations to '
+    text = re.sub(r"[“”]", '"', text)  # Convert all double quote variations to "
+
+    # remove any and all special characters since it will not be useful for our analysis
+    text = re.sub(r"[^a-zA-Z0-9\s]", "", text)
+
+    return text
+
+
 def main():
     output_filename = "data/data.xlsx"
 
@@ -111,6 +125,12 @@ def main():
             extract_relevant_sentences(df, pro_israeli_words, pro_palestinian_words)
         )
 
+    # remove special characters from the sentences
+    df_results[0]["sentence"] = df_results[0]["sentence"].apply(clean_text)
+    df_results[1]["sentence"] = df_results[1]["sentence"].apply(clean_text)
+    df_results[2]["sentence"] = df_results[2]["sentence"].apply(clean_text)
+    df_results[3]["sentence"] = df_results[3]["sentence"].apply(clean_text)
+
     # Combine results
     print("Combining results")
     df_extracted = pd.concat(df_results)
@@ -120,12 +140,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# # Apply to all DataFrames
-# df_results = []
-# for df in [df_source1, df_source2, df_source3, df_source4]:
-#     df_results.append(extract_relevant_sentences(df, pro_israeli_words, pro_palestinian_words))
-
-# # Combine results
-# df_extracted = pd.concat(df_results)
-# df_extracted.to_csv('extracted_sentences.csv', index=False)
