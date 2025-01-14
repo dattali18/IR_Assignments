@@ -196,9 +196,9 @@ for epoch in range(n_epochs):
 
 The screenshot from the training process
 
-![](training_1.png)
+![](attachments/training_1.png)
 
-![](training_2.png)
+![](attachments/training_2.png)
 As we can see after the final epoch the model has:
 
 - Validation Loss: 0.1146
