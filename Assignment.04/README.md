@@ -17,15 +17,15 @@ For preparing the data we have done something similar to last time (assignment 3
 
 ```python
 pro_palestine_words = [
-"resistance",
-"rights",
-"humanitarian",
-"peaceful",
-"legitimate",
-"protesters",
-"activists",
-"demonstrations",
-"supporters",
+	"resistance",
+	"rights",
+	"humanitarian",
+	"peaceful",
+	"legitimate",
+	"protesters",
+	"activists",
+	"demonstrations",
+	"supporters",
 ...
 ]
 
