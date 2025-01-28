@@ -4,7 +4,8 @@ We have divided the assignment into 3 steps:
 
 1. Data Preparation (similar to what we did last time)
 2. Model Training
-3. Article Classification + Analysis
+3. Article Classification
+4. Analysis
 
 ## Stage 1 - Data Preparation
 
@@ -342,4 +343,5 @@ df.to_csv("sentences_with_class.csv", index=False)
 
 Now that we have all the sentences with their classes we can do the analysis.
 
-## Stage 3.2 - Analysis
+## Stage 4 - Analysis
+
