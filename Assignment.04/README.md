@@ -6,12 +6,6 @@ We have divided the assignment into 3 steps:
 2. Model Training
 3. Article Classification + Analysis
 
-## Todo
-
-- [x] Add more code example to the **Stage 1** and more explanation about our words choices
-- [x] Do **Stage 2**
-- [ ] Do **Stage 3**
-
 ## Stage 1 - Data Preparation
 
 For preparing the data we have done something similar to last time (assignment 3) but needed to change in order to take the different requirements (5 class and not 3), so what we did is we wrote 4 different dictionary of words _pro-israel_, _pro-palestine_, _anti-israel_, _anti-palestine_
@@ -207,5 +201,145 @@ As we can see after the final epoch the model has:
 Meaning our model is accurate $97.87\%$ of the time.
 
 ## Stage 3.1 - Article Classification
+
+First to classify the articles we needed to write a function that uses the model and give out a tuple of the probabilities vectors and the string representation of the class.
+
+```python
+def classify_sentence(sentence):
+	# Tokenize the sentence
+	inputs = tokenizer(sentence, return_tensors='pt', truncation=True,
+	 padding=True, max_length=512)
+	inputs = {k: v.to(device) for k, v in inputs.items()}
+	# Get the model's output
+	with torch.no_grad():
+		logits = model(inputs['input_ids'], inputs['attention_mask'])
+	# Apply softmax to get probabilities
+	probabilities = torch.nn.functional.softmax(logits, dim=1)
+	# get the str of the calss based on the one-hot-encoded vector
+	predicted_class = torch.argmax(probabilities, dim=1).item()
+	# Create a one-hot encoded vector
+	one_hot_vector = torch.zeros(probabilities.size(1))
+	one_hot_vector[predicted_class] = 1
+	map_class = {0: 'pro-israeli', 1: 'pro-palestinan', 
+		2: 'neutral', 3: 'anti-isreali', 4: 'anti-palestinian'}
+	
+	return probabilities, one_hot_to_class(one_hot_vector, map_class)
+```
+
+This function is taking a string sentence and returning the probabilities vector and the string representation of the class by passing the sentence into the model and getting back the last layer which is the logits and then applying softmax to get the probabilities and then getting the class by taking the argmax of the probabilities vector.
+
+Then we needed to get the original article and separated them into sentences like so:
+
+```python
+# get the data from the github repository
+aj_url = "https://github.com/dattali18/IR_Assignments/blob/main/Assignment.01/data/word/A_J_word.csv?raw=true"
+bbc_url = "https://github.com/dattali18/IR_Assignments/blob/main/Assignment.01/data/word/BBC_word.csv?raw=true"
+jp_url = "https://github.com/dattali18/IR_Assignments/blob/main/Assignment.01/data/word/J_P_word.csv?raw=true"
+nyt_url = "https://github.com/dattali18/IR_Assignments/blob/main/Assignment.01/data/word/NYT_word.csv?raw=true"
+
+import pandas as pd
+
+# load the data
+aj_df = pd.read_csv(aj_url)
+bbc_df = pd.read_csv(bbc_url)
+jp_df = pd.read_csv(jp_url)
+nyt_df = pd.read_csv(nyt_url)
+
+
+def clean_text(text):
+	# Normalize all types of single and double 
+	# quotation marks to standard forms
+	text = re.sub(r"[‘’`]", "'", text) 
+	# Convert all single quote variations to '
+	text = re.sub(r"[“”]", '"', text) 
+	# Convert all double quote variations to "
+	
+	# remove any and all special characters 
+	# since it will not be useful for our analysis
+	text = re.sub(r"[^a-zA-Z0-9\s]", "", text)
+	
+	return text
+
+  
+
+def extract_all_sentences(df):
+	# this will return a dict with key the id of the article "aj_1" for example
+	# and a list of all the sentences in the article
+	all_sentences = []
+	for index, row in df.iterrows():
+		text = row["document"]
+		# TODO - ask gpt for a smarter sentence extratctor
+		sentences = re.split(r"[.!?]", text)
+		sentences = [sentence for sentence in sentences if sentence != ""]
+		# clean the sentences
+		sentences = [clean_text(sentence) for sentence in sentences]
+	
+	# for all sentence in sentences add to df
+	for sentence in sentences:
+		all_sentences.append({"id": row["id"], "document": sentence})
+	return all_sentences
+```
+
+Then we will use those function to extract all the sentences from each journal.
+
+```python
+aj_sentences = extract_all_sentences(aj_df)
+bbc_sentences = extract_all_sentences(bbc_df)
+jp_sentences = extract_all_sentences(jp_df)
+nyt_sentences = extract_all_sentences(nyt_df)
+
+aj_df = pd.DataFrame(aj_sentences)
+bbc_df = pd.DataFrame(bbc_sentences)
+jp_df = pd.DataFrame(jp_sentences)
+nyt_df = pd.DataFrame(nyt_sentences)
+
+df = pd.DataFrame(columns=["id", "document", "pro-israeli",
+						   "pro-palestinan", "neutral", "anti-isreali",
+							"anti-palestinian", "majority_class"])
+
+df = pd.concat([df, aj_df], ignore_index=True)
+df = pd.concat([df, bbc_df], ignore_index=True)
+df = pd.concat([df, jp_df], ignore_index=True)
+df = pd.concat([df, nyt_df], ignore_index=True)
+
+  
+
+df[["pro-israeli", "pro-palestinan", 
+	"neutral", "anti-isreali", "anti-palestinian"]] = 0
+df['majority_class'] = ''
+
+df = df.rename(columns={"document": "sentence"})
+```
+
+Now that we have all we need, we will use all the function above to loop over all the sentences in every article and classify them and then get the majority class of the article.
+
+```python
+# loop through every items in df
+for index, row in df.iterrows():
+	sentence = row['sentence']
+	probs, cls = classify_sentence(sentence)
+	# put the values in the df
+	df.at[index, 'majority_class'] = cls
+	# unpack the values in probs (len 5) to the 5 classes of ["pro-israeli", "pro-palestinan", "neutral", "anti-isreali", "anti-palestinian"]
+	
+	# map index to key
+	map_class = {0: 'pro-israeli', 1: 'pro-palestinan', 
+				 2: 'neutral', 3: 'anti-isreali', 4: 'anti-palestinian'}
+	
+	for i in range(5):
+		df.at[index, map_class[i]] = probs[0][i].item()
+		# print at interval of 100 indexs
+		if index % 100 == 0:
+			print(f"processing index {index}")
+```
+
+And finally, we will save the data frame to a csv file.
+
+```python
+df.to_csv("sentences_with_class.csv", index=False)
+
+```
+
+Now that we have all the sentences with their classes we can do the analysis.
 
 ## Stage 3.2 - Analysis
