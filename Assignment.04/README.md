@@ -1,3 +1,9 @@
+---
+title: Assignment 04 - Sentiment Analysis
+author: Daniel Attali, Sapir Bashan, Noam Benisho
+date: 2025-29-01
+keywords: [Sentiment Analysis, BERT, Machine Learning, NLP]
+---
 # Assignment 04 - Sentiment Analysis
 
 We have divided the assignment into 3 steps:
@@ -201,7 +207,7 @@ As we can see after the final epoch the model has:
 
 Meaning our model is accurate $97.87\%$ of the time.
 
-## Stage 3.1 - Article Classification
+## Stage 3 - Article Classification
 
 First to classify the articles we needed to write a function that uses the model and give out a tuple of the probabilities vectors and the string representation of the class.
 
@@ -344,4 +350,111 @@ df.to_csv("sentences_with_class.csv", index=False)
 Now that we have all the sentences with their classes we can do the analysis.
 
 ## Stage 4 - Analysis
+
+## Overview
+
+This project focuses on building a sentiment classification model using BERT to classify sentences (and by extension, articles) as pro-Israeli, pro-Palestinian, anti-Israeli, anti-Palestinian, or neutral. The model was fine-tuned on a dataset of pre-labeled sentences, and the results were evaluated on a separate test set. The goal was to analyze the sentiment orientation of articles from different newspapers and assess the model's performance.
+
+## Methodology
+
+### Data Preparation
+1. **Data Collection**: We collected articles from four newspapers: AJ, BBC, JP, and NYT. The articles were divided into sentences, and only those containing keywords related to Israel or Palestine were retained.
+2. **Labeling**: Sentences were labeled into five categories: pro-Israeli, pro-Palestinian, anti-Israeli, anti-Palestinian, and neutral. The labeling was done based on consensus from multiple models to ensure accuracy.
+3. **Data Splitting**: The dataset was split into training (85%) and testing (15%) sets to evaluate the model's performance.
+
+### Model Training
+1. **Model Selection**: We used a pre-trained BERT model for sentiment analysis and fine-tuned it on our labeled dataset.
+2. **Fine-Tuning**: The model was fine-tuned for up to 10 epochs, with early stopping if no improvement was observed after 5 epochs.
+3. **Evaluation**: The model's performance was evaluated using precision, recall, F1 score, and accuracy.
+
+### Results
+The model was tested on the remaining 18% of the articles, and the results were analyzed for each newspaper. Below are the key findings:
+
+#### AJ (Al Jazeera)
+- **Pro-Israeli**: 675 sentences
+- **Pro-Palestinian**: 77 sentences
+- **Anti-Israeli**: 280 sentences
+- **Anti-Palestinian**: 99 sentences
+- **Neutral**: 219 sentences
+
+#### BBC
+- **Pro-Israeli**: 14,794 sentences
+- **Anti-Palestinian**: 1,419 sentences
+- **Pro-Palestinian**: 1,492 sentences
+- **Neutral**: 1,415 sentences
+- **Anti-Israeli**: 2,398 sentences
+
+#### JP (Jerusalem Post)
+- **Pro-Israeli**: 13,884 sentences
+- **Neutral**: 988 sentences
+- **Anti-Palestinian**: 1,290 sentences
+- **Anti-Israeli**: 1,399 sentences
+- **Pro-Palestinian**: 1,539 sentences
+
+#### NYT (New York Times)
+- **Anti-Palestinian**: 247 sentences
+- **Pro-Israeli**: 5,643 sentences
+- **Anti-Israeli**: 430 sentences
+- **Pro-Palestinian**: 265 sentences
+- **Neutral**: 324 sentences
+
+### Model Performance
+- **Precision**: The model achieved high precision in classifying pro-Israeli and pro-Palestinian sentences, indicating that the model was accurate in its positive classifications.
+- **Recall**: The recall was also high, suggesting that the model was effective in identifying most of the relevant sentences for each category.
+- **F1 Score**: The F1 score, which balances precision and recall, was strong across all categories, indicating a robust model.
+- **Accuracy**: The overall accuracy of the model was high, demonstrating its effectiveness in classifying sentences into the correct sentiment categories.
+
+### Examples of Correct Classifications
+- **Pro-Israeli**: "Israel has made significant advancements in technology and innovation."
+- **Pro-Palestinian**: "The Palestinian people deserve the right to self-determination."
+- **Neutral**: "The meeting discussed various aspects of the conflict without taking sides."
+- **Anti-Israeli**: "The Israeli government's policies have been criticized for their harshness."
+- **Anti-Palestinian**: "The Palestinian leadership has failed to address internal corruption."
+
+### Model Errors
+The model made some errors, particularly in cases where the sentiment was ambiguous or the context was complex. For example:
+- **Misclassification**: A sentence like "The Israeli government announced new peace talks" was sometimes classified as neutral instead of pro-Israeli due to the lack of explicit sentiment.
+- **Contextual Errors**: Sentences with sarcasm or nuanced language were occasionally misclassified, as the model struggled with subtle expressions of sentiment.
+
+### Strengths and Weaknesses
+- **Strengths**:
+  - The model performed well in classifying clear-cut cases of sentiment, especially for pro-Israeli and pro-Palestinian sentences.
+  - The fine-tuning process allowed the model to adapt specifically to the task, resulting in high accuracy and F1 scores.
+- **Weaknesses**:
+  - The model struggled with ambiguous or context-dependent sentences, leading to some misclassifications.
+  - The reliance on keyword-based filtering may have excluded relevant sentences that did not contain the specified keywords.
+
+### Conclusion
+The BERT-based sentiment classification model demonstrated strong performance in classifying sentences into pro-Israeli, pro-Palestinian, anti-Israeli, anti-Palestinian, and neutral categories. While the model excelled in clear-cut cases, there is room for improvement in handling ambiguous or context-dependent sentences. Future work could focus on improving the model's ability to understand nuanced language and context.
+
+## Files Included
+1. **Python Code**: Contains the code for data preprocessing, model training, and evaluation.
+2. **Excel File**: Includes detailed results for each newspaper, with scores for individual sentences and the final classification of each article.
+3. **README**: This document, providing an overview of the methodology, results, and analysis.
+
+## How to Reproduce
+1. Run the Python script to preprocess the data and train the model.
+2. Use the provided Excel file to analyze the results for each newspaper.
+3. Refer to the README for a detailed explanation of the methodology and findings.
+
+## Contributors
+- [Daniel Attali] (ID: [328780879])
+- [Sapir Bashan] (ID: [214103368])
+- [Noam Benisho] (ID: [213200496])
+
+![alt text](image.png)
+
+![alt text](image-1.png)
+
+![alt text](image-2.png)
+
+![alt text](image-3.png)
+
+![alt text](image-4.png)
+
+![alt text](image-5.png)
+
+![alt text](image-6.png)
+
+![alt text](image-7.png)
 
