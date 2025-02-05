@@ -7,6 +7,7 @@ author: Daniel Attali, Sapir Bashan, Noam Benisho
 # Part A: Human Validation on Ex4
 
 ==todo==
+
 # Part B: Vector Based Model
 
 In this part we are tasked to create a new model based on vectors (BERT and SBERT) and then use 3 different classifiers to classify the sentences into 5 categories. So the work we did was as follows:
@@ -271,6 +272,7 @@ best_lor_sbert = grid_lor_sbert.best_estimator_
 ```
 
 Same as the SVM model we used `GridSearchCV` to find the best parameters for the model.
+
 ### ANN
 
 The ANN had to be created with the following requirements:
@@ -351,7 +353,7 @@ bert_history = bert_model.fit(
 
 We have this for the training process:
 
-![](model_training.png)
+![](attachments/model_training.png)
 
 ## Testing and Evaluation
 
@@ -610,17 +612,17 @@ We will show graphs and metrics for each of the model
 
 ### SVM & LoR
 
-![LoR and SVM](LoR%20and%20SVM.png)
+![LoR and SVM](attachments/LoR%20and%20SVM.png)
 
-![LoR and SVM CM](LoR%20and%20SVM%20CM.png)
+![LoR and SVM CM](attachments/LoR%20and%20SVM%20CM.png)
 
 ### ANN
 
-![metric_ann](metric_ann.png)
+![metric_ann](attachments/metric_ann.png)
 
-![cm_ann](cm_ann.png)
+![cm_ann](attachments/cm_ann.png)
 
-![training_ann](training_ann.png)
+![training_ann](attachments/training_ann.png)
 
 ## Conclusion
 
