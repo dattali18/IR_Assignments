@@ -144,7 +144,7 @@ anti_israel: 1495,
 anti_palestine: 1255
 ```
 
-Meaning if we wan't each class to have the same amount of samples to train on we need to take at most `1255` samples from each class. So we took a random sample of `1255` samples from each class.
+Meaning if we want each class to have the same amount of samples to train on we need to take at most `1255` samples from each class. So we took a random sample of `1255` samples from each class.
 
 ```python
 pro_israel_sample = pro_israel_df.sample(n=num_samples, random_state=42)
@@ -152,7 +152,7 @@ pro_palestine_sample = pro_palestine_df.sample(n=num_samples, random_state=42)
 neutral_sample = neutral_df.sample(n=num_samples, random_state=42)
 anti_israel_sample = anti_israel.sample(n=num_samples, random_state=42)
 anti_palestine_sample = anti_palestine_df.sample(n=num_samples,
-					random_state=42)
+													random_state=42)
 ```
 
 ### Train and Test Split
@@ -251,7 +251,7 @@ grid_svm_bert.fit(X_bert_train, np.argmax(y_bert_train, axis=1))
 best_svm_bert = grid_svm_bert.best_estimator_
 ```
 
-What we did is we created a SVM model, and then we used `GridSearchCV` to find the best parameters for the model.
+What we did is we created an SVM model, and then we used `GridSearchCV` to find the best parameters for the model.
 
 ### Logistic Regression
 
@@ -270,7 +270,6 @@ best_lor_sbert = grid_lor_sbert.best_estimator_
 ```
 
 Same as the SVM model we used `GridSearchCV` to find the best parameters for the model.
-
 ### ANN
 
 The ANN had to be created with the following requirements:
@@ -387,14 +386,14 @@ SVM BERT:
 Classification Report: 
 
 	precision recall f1-score support 
-pro_israel 0.80 0.43 0.56 28 
-pro_palestine 0.53 0.71 0.61 14 
-neutral 0.26 0.50 0.34 10 
-anti_israel 0.60 0.50 0.55 24 
-anti_palestine 0.44 0.50 0.47 24 
+pro_israel      0.80 0.43 0.56 28 
+pro_palestine   0.53 0.71 0.61 14 
+neutral         0.26 0.50 0.34 10 
+anti_israel     0.60 0.50 0.55 24 
+anti_palestine  0.44 0.50 0.47 24 
 
-accuracy 0.51 100 
-macro avg 0.53 0.53 0.51 100 
+accuracy     0.51 100 
+macro avg    0.53 0.53 0.51 100 
 weighted avg 0.57 0.51 0.52 100 
 
 Confusion Matrix: 
@@ -411,15 +410,15 @@ SVM SBERT:
 Classification Report: 
 
 	precision recall f1-score support 
-pro_israel 0.78 0.50 0.61 28 
-pro_palestine 0.56 0.71 0.62 14 
-neutral 0.33 0.70 0.45 10 
-anti_israel 0.73 0.67 0.70 24 
-anti_palestine 0.71 0.62 0.67 24 
+pro_israel       0.78 0.50 0.61 28 
+pro_palestine    0.56 0.71 0.62 14 
+neutral          0.33 0.70 0.45 10 
+anti_israel      0.73 0.67 0.70 24 
+anti_palestine   0.71 0.62 0.67 24 
 
-accuracy 0.62 100 
-macro avg 0.62 0.64 0.61 100 
-weighted avg 0.67 0.62 0.63 100 
+accuracy      0.62 100 
+macro avg     0.62 0.64 0.61 100 
+weighted avg  0.67 0.62 0.63 100 
 
 Confusion Matrix: 
 
@@ -451,15 +450,15 @@ Logistic Regression BERT:
 
 Classification Report: 
 	precision recall f1-score support 
-pro_israel 0.68 0.46 0.55 28
-pro_palestine 0.47 0.57 0.52 14 
-neutral 0.25 0.50 0.33 10 
-anti_israel 0.61 0.58 0.60 24 
-anti_palestine 0.43 0.38 0.40 24 
+pro_israel       0.68 0.46 0.55 28
+pro_palestine    0.47 0.57 0.52 14 
+neutral          0.25 0.50 0.33 10 
+anti_israel      0.61 0.58 0.60 24 
+anti_palestine   0.43 0.38 0.40 24 
 
-accuracy 0.49 100 
-macro avg 0.49 0.50 0.48 100 
-weighted avg 0.53 0.49 0.50 100 
+accuracy      0.49 100 
+macro avg     0.49 0.50 0.48 100 
+weighted avg  0.53 0.49 0.50 100 
 
 Confusion Matrix: 
 
@@ -475,15 +474,15 @@ Logistic Regression SBERT:
 
 Classification Report: 
 	precision recall f1-score support 
-pro_israel 0.79 0.54 0.64 28 
-pro_palestine 0.56 0.71 0.62 14 
-neutral 0.28 0.50 0.36 10 
-anti_israel 0.70 0.58 0.64 24 
-anti_palestine 0.64 0.67 0.65 24 
+pro_israel       0.79 0.54 0.64 28 
+pro_palestine    0.56 0.71 0.62 14 
+neutral          0.28 0.50 0.36 10 
+anti_israel      0.70 0.58 0.64 24 
+anti_palestine   0.64 0.67 0.65 24 
 
-accuracy 0.60 100 
-macro avg 0.59 0.60 0.58 100 
-weighted avg 0.65 0.60 0.61 100 
+accuracy      0.60 100 
+macro avg     0.59 0.60 0.58 100 
+weighted avg  0.65 0.60 0.61 100 
 
 Confusion Matrix: 
 
@@ -558,7 +557,6 @@ BERT Confusion Matrix:
 
 	Confusion Matrix:
 	---------------- 
-	
 	True\Pred Pro- Pro- Neut Anti Anti 
 	Pro- 172 32 30 22 17 
 	Pro- 15 172 19 8 15 
@@ -596,9 +594,8 @@ Per-class metrics:
 
 SBERT Confusion Matrix: 
 
-Confusion Matrix:
----------------- 
-
+	Confusion Matrix:
+	---------------- 
 	True\Pred Pro- Pro- Neut Anti Anti 
 	Pro- 196 14 24 13 26 
 	Pro- 8 195 10 9 7 
