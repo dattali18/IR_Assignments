@@ -6,6 +6,7 @@ author: Daniel Attali, Sapir Bashan, Noam Benisho
 
 # Part A: Human Validation on Ex4
 
+==todo==
 # Part B: Vector Based Model
 
 In this part we are tasked to create a new model based on vectors (BERT and SBERT) and then use 3 different classifiers to classify the sentences into 5 categories. So the work we did was as follows:
