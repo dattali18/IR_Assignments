@@ -873,15 +873,15 @@ plot_training_history(bert_history, sbert_history)
 
 ### Evaluation Metrics
 
-![png](IR_05_ANN_files/IR_05_ANN_41_0.png)
+![png](metric_ann.png)
 
 ### Confusion Matrices
 
-![png](IR_05_ANN_files/IR_05_ANN_41_1.png)
+![png](cm_ann.png)
 
 ### Training History
 
-![png](IR_05_ANN_files/IR_05_ANN_41_2.png)
+![png](training_ann.png)
 
 ## Conclusion For ANN
 
