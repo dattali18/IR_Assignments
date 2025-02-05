@@ -1,59 +1,8 @@
-```plaintext
-I'll help break down this bonus assignment into its main components and create a clear plan. The assignment has two main parts:
-
-Part A - Testing Mixed-Group Sentences:
-1. Use the models created in Exercise 4 that classify sentences into:
-   - Pro-Palestinian, Pro-Israel, Neutral, Anti-Palestinian, Anti-Israeli
-   - Need to test sentences containing words from both Israeli and Palestinian word groups
-
-2. Requirements:
-   - Select 35 sentences for each classification category
-   - Sentences must contain words from both groups
-   - Manually classify each sentence
-   - Run them through the model
-   - Calculate precision, recall, F1 & accuracy metrics
-
-Part B - Creating New Vector-Based Models:
-1. Create sentence vectors using two methods:
-   - SBERT on complete sentences
-   - BERT tokens summed (excluding stop words)
-
-2. Create three types of classifiers:
-   a) Support Vector Machine (SVM):
-      - Use 10-fold cross validation
-      - Classify into all 5 categories
-
-   b) Logistic Regression (LoR):
-      - Use 10-fold cross validation
-      - Classify into all 5 categories
-
-   c) Artificial Neural Network (ANN):
-      - Data split: 80% training (with 10% validation), 20% testing
-      - Maximum 15 epochs
-      - Batch size of 32
-      - Specific architecture requirements:
-        - 4 hidden layers (3×32 nodes, 1×16 nodes)
-        - ReLU activation for hidden layers
-        - Softmax for output layer
-      - Include callbacks:
-        - Early stopping after 5 iterations without improvement
-        - Model checkpoint for best accuracy
-
-3. Create an Excel file showing:
-   - Source information (newspaper, article number)
-   - Original sentence
-   - Classifications and confidence scores from all models
-   - True class
-
-Implementation Plan:
-4. Data Preparation
-5. Vector Creation
-6. Model Implementation
-7. Testing and Evaluation
-8. Results Documentation
-
-Would you like me to elaborate on any specific part of this breakdown or provide more detailed steps for implementation?
-```
+---
+title: Information-Retrieval Bonus
+date: 2025-02-05
+author: Daniel Attali, Sapir Bashan, Noam Benisho
+---
 
 # Part A: Human Validation on Ex4
 
@@ -432,9 +381,54 @@ svm_sbert_proba = evaluate_model(best_svm_sbert, X_sbert_test,
 				y_sbert_test, class_names)
 ```
 
-![](svm-bert.png)
+```plaintext
+SVM BERT:
 
-![](svm-sbert.png)
+Classification Report: 
+
+	precision recall f1-score support 
+pro_israel 0.80 0.43 0.56 28 
+pro_palestine 0.53 0.71 0.61 14 
+neutral 0.26 0.50 0.34 10 
+anti_israel 0.60 0.50 0.55 24 
+anti_palestine 0.44 0.50 0.47 24 
+
+accuracy 0.51 100 
+macro avg 0.53 0.53 0.51 100 
+weighted avg 0.57 0.51 0.52 100 
+
+Confusion Matrix: 
+	[[12 3 2 5 6] 
+	[ 1 10 3 0 0] 
+	[ 1 0 5 1 3] 
+	[ 1 3 2 12 6] 
+	[ 0 3 7 2 12]]
+```
+
+```plaintext
+SVM SBERT: 
+
+Classification Report: 
+
+	precision recall f1-score support 
+pro_israel 0.78 0.50 0.61 28 
+pro_palestine 0.56 0.71 0.62 14 
+neutral 0.33 0.70 0.45 10 
+anti_israel 0.73 0.67 0.70 24 
+anti_palestine 0.71 0.62 0.67 24 
+
+accuracy 0.62 100 
+macro avg 0.62 0.64 0.61 100 
+weighted avg 0.67 0.62 0.63 100 
+
+Confusion Matrix: 
+
+[[14 3 7 3 1] 
+[ 1 10 2 1 0] 
+[ 1 1 7 0 1] 
+[ 0 1 3 16 4]
+[ 2 3 2 2 15]]
+```
 
 ### Logistic Regression
 
@@ -452,10 +446,53 @@ lor_sbert_proba = evaluate_model(best_lor_sbert, X_sbert_test,
 						y_sbert_test, class_names)
 ```
 
-![](lor-bert.png)
+```plaintext
+Logistic Regression BERT:
 
-![](lor-sbert.png)
+Classification Report: 
+	precision recall f1-score support 
+pro_israel 0.68 0.46 0.55 28
+pro_palestine 0.47 0.57 0.52 14 
+neutral 0.25 0.50 0.33 10 
+anti_israel 0.61 0.58 0.60 24 
+anti_palestine 0.43 0.38 0.40 24 
 
+accuracy 0.49 100 
+macro avg 0.49 0.50 0.48 100 
+weighted avg 0.53 0.49 0.50 100 
+
+Confusion Matrix: 
+
+	[[13 4 3 4 4] 
+	[ 1 8 3 0 2] 
+	[ 1 0 5 1 3] 
+	[ 2 1 4 14 3] 
+	[ 2 4 5 4 9]]
+```
+
+```plaintext
+Logistic Regression SBERT: 
+
+Classification Report: 
+	precision recall f1-score support 
+pro_israel 0.79 0.54 0.64 28 
+pro_palestine 0.56 0.71 0.62 14 
+neutral 0.28 0.50 0.36 10 
+anti_israel 0.70 0.58 0.64 24 
+anti_palestine 0.64 0.67 0.65 24 
+
+accuracy 0.60 100 
+macro avg 0.59 0.60 0.58 100 
+weighted avg 0.65 0.60 0.61 100 
+
+Confusion Matrix: 
+
+	[[15 3 6 2 2] 
+	[ 1 10 2 1 0] 
+	[ 1 1 5 1 2] 
+	[ 1 1 3 14 5] 
+	[ 1 3 2 2 16]]
+```
 ### ANN
 
 The testing process for the ANN is a bit different:
@@ -491,11 +528,84 @@ def get_metrics(y_true, y_pred, class_names):
 	}
 ```
 
-![](ann-bert.png)
-![](ann-sbert.png)
-![](cm-ann-bert.png)
-![](cm-ann-sbert.png)
+```plaintext
+BERT Model Metrics: 
+================== 
+Overall Accuracy: 0.6597609561752988 
+Per-class metrics: 
+	Pro-Israel: 
+		Precision: 0.6992 
+		Recall: 0.6300
+		F1-score: 0.6628 
+	Pro-Palestinian: 
+		Precision: 0.5831
+		Recall: 0.7511 
+		F1-score: 0.6565 
+	Neutral: 
+		Precision: 0.6545 
+		Recall: 0.5000 
+		F1-score: 0.5669 
+	Anti-Palestinian: 
+		Precision: 0.6850
+		Recall: 0.7016 
+		F1-score: 0.6932 
+	Anti-Israel: 
+		Precision: 0.6877
+		Recall: 0.7255
+		F1-score: 0.7061
 
+BERT Confusion Matrix: 
+
+	Confusion Matrix:
+	---------------- 
+	
+	True\Pred Pro- Pro- Neut Anti Anti 
+	Pro- 172 32 30 22 17 
+	Pro- 15 172 19 8 15 
+	Neut 29 45 125 23 28 
+	Anti 16 23 11 174 24 
+	Anti 14 23 6 27 185
+```
+
+```plaintext
+SBERT Model Metrics: 
+=================== 
+Overall Accuracy: 0.7450199203187251
+
+Per-class metrics: 
+	Pro-Israel: 
+		Precision: 0.8376
+		Recall: 0.7179
+		F1-score: 0.7732 
+	Pro-Palestinian: 
+		Precision: 0.7040
+		Recall: 0.8515
+		F1-score: 0.7708 
+	Neutral: 
+		Precision: 0.7015
+		Recall: 0.5640
+		F1-score: 0.6253 
+	Anti-Palestinian: 
+		Precision: 0.7385
+		Recall: 0.7742
+		F1-score: 0.7559 
+	Anti-Israel: 
+		Precision: 0.7456 
+		Recall: 0.8275 
+		F1-score: 0.7844
+
+SBERT Confusion Matrix: 
+
+Confusion Matrix:
+---------------- 
+
+	True\Pred Pro- Pro- Neut Anti Anti 
+	Pro- 196 14 24 13 26 
+	Pro- 8 195 10 9 7 
+	Neut 21 43 141 25 20 
+	Anti 4 17 16 192 19 
+	Anti 5 8 10 21 211
+```
 ## Results Documentation
 
 We will show graphs and metrics for each of the model
