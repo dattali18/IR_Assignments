@@ -1,0 +1,63 @@
+\documentclass[11pt]{article}
+
+% Encoding and font packages
+\usepackage[utf8]{inputenc}         % Input encoding
+\usepackage[T1]{fontenc}            % Font encoding for proper character handling
+\usepackage{lmodern}                % Latin Modern fonts
+
+% Page layout
+\usepackage{geometry}               % Adjust page layout
+\geometry{a4paper, left=25mm, right=25mm, top=25mm, bottom=25mm} % Custom margins
+
+% Header and footer customization
+\usepackage{fancyhdr}               % Fancy headers and footers
+
+% Listings and code styling
+\usepackage{listings}               % Code formatting
+\usepackage{xcolor}                 % Color support (for code highlighting)
+
+% Hyperlinks and PDF metadata
+\usepackage{hyperref}               % Hyperlinks in the document
+
+% Graphics handling
+\usepackage{graphicx}               % Include graphics (images, figures)
+
+% Math packages
+\usepackage{amsmath}                % Advanced math typesetting
+\usepackage{amsfonts}               % More math fonts
+\usepackage{amssymb}                % Additional symbols
+
+% Framed and custom environments
+\usepackage{framed}                 % Framed environments
+\usepackage{fvextra}                % Enhanced verbatim environments
+\usepackage{fancyvrb}               % For the Shaded environment
+
+% Remove space between list items
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% For better color handling in code
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{lightgray},
+  frame=single,
+  rulecolor=\color{black},
+  keywordstyle=\color{blue},
+  commentstyle=\color{green},
+  stringstyle=\color{red},
+  breaklines=true,
+  moredelim=[is][\bfseries\color{black!50}]{@}{@}, % For custom marking
+}
+
+% Shaded environment using fvextra
+\DefineVerbatimEnvironment{Shaded}{Verbatim}{formatcom=\color{black!60},frame=single,framesep=3mm}
+
+% Define \pandocbounded if it's not already defined (fallback definition)
+\newcommand{\pandocbounded}[1]{#1}
+
+\begin{document}
+
+% Your content goes here
+$body$
+
+\end{document}
