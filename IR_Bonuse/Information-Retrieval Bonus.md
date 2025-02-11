@@ -671,6 +671,20 @@ SBERT Confusion Matrix:
 ```
 ## Results Documentation
 
+This is the table comparing the results of the 3 models:
+
+| Model     | Accuracy | Precision | Recall  | F1-Score |
+|-----------|----------|-----------|---------|----------|
+| ANN-BERT  | 0.447490 | 0.486108  | 0.447490 | 0.451738 |
+| ANN-SBERT | 0.507729 | 0.517275  | 0.507729 | 0.511968 |
+| SVM-BERT  | 0.391873 | 0.375541  | 0.391873 | 0.382335 |
+| SVM-SBERT | 0.444303 | 0.441490  | 0.444303 | 0.440945 |
+| LoR-BERT  | 0.392829 | 0.394762  | 0.392829 | 0.392715 |
+| LoR-SBERT | 0.436653 | 0.436328  | 0.436653 | 0.436001 |
+
+![graph1](attachments/graph-1.png)
+![graph2](attachments/graph-2.png)
+
 We will show graphs and metrics for each of the model
 
 ### SVM & LoR
